@@ -594,6 +594,7 @@
     let history = [];
     let buyQuantities = {};
     let currentJobId = 1;  
+    let jobIds = [1];
 
     const currency = n => '$' + Number(n).toFixed(2);
 
@@ -625,6 +626,11 @@
 
       currentJobId = parseInt(localStorage.getItem('harm_job_id') || '1');
       if (isNaN(currentJobId) || currentJobId < 1) currentJobId = 1;
+
+      try {
+        jobIds = JSON.parse(localStorage.getItem('harm_job_ids') || '[1]');
+        if (!Array.isArray(jobIds) || !jobIds.length) jobIds = [1];
+      } catch(e) { jobIds = [1]; }
       
       fetchCloudHistory();
     }
@@ -635,6 +641,7 @@
       localStorage.setItem('harm_discount', discountPct);
       localStorage.setItem('harm_buy', JSON.stringify(buyQuantities));
       localStorage.setItem('harm_job_id', currentJobId);
+      localStorage.setItem('harm_job_ids', JSON.stringify(jobIds));
     }
 
     async function fetchCloudHistory() {
@@ -737,20 +744,20 @@
       const cartEl = document.getElementById('cart');
       if (!cartEl) return;
 
-      if (!cart.length) {
+      const displayJobIds = [...new Set([...jobIds, ...cart.map(item => item.job || 1)])].sort((a, b) => a - b);
+
+      if (!cart.length && displayJobIds.length <= 1) {
         cartEl.innerHTML = `<p class="muted" style="text-align:center; padding:48px 20px; font-size:0.95rem; grid-column: 1 / -1;">No items added to current order.</p>`;
       } else {
-        const jobIds = [...new Set(cart.map(item => item.job || 1))];
-
-        cartEl.innerHTML = jobIds.map(jobId => {
+        cartEl.innerHTML = displayJobIds.map(jobId => {
           const jobItems = cart.map((item, i) => ({ item, i })).filter(x => (x.item.job || 1) === jobId);
           const jobSubtotal = jobItems.reduce((a, x) => a + x.item.price * x.item.qty, 0);
-          const jobLabel = jobIds.length > 1 ? `Repair #${jobId}` : `Repair`;
+          const jobLabel = displayJobIds.length > 1 ? `Repair #${jobId}` : `Repair`;
           const isActive = jobId === currentJobId;
 
           return `
-            <div class="repair-group" style="margin-bottom: 18px; ${jobIds.length > 1 ? `border:1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; border-radius:12px; padding:12px; background: rgba(255,255,255,0.015);` : ''}">
-              ${jobIds.length > 1 ? `
+            <div class="repair-group" style="margin-bottom: 18px; ${displayJobIds.length > 1 ? `border:1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; border-radius:12px; padding:12px; background: rgba(255,255,255,0.015);` : ''}">
+              ${displayJobIds.length > 1 ? `
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.85rem; font-weight:700; color: var(--accent); text-transform:uppercase; letter-spacing: 0.03em; flex-wrap:wrap; gap:8px;">
                   <span>🔧 ${jobLabel} ${isActive ? '<span style="background:var(--accent); color:#fff; padding:2px 8px; border-radius:6px; font-size:0.75rem; text-transform:none; margin-left:6px;">Active</span>' : ''}</span>
                   <div style="display:flex; align-items:center; gap:10px;">
@@ -759,7 +766,7 @@
                   </div>
                 </div>
               ` : ''}
-              ${jobItems.map(({item, i}) => `
+              ${jobItems.length ? jobItems.map(({item, i}) => `
                 <div class="cart-item">
                   <div>
                     <strong style="font-size:0.95rem;">${item.name}</strong><br>
@@ -777,7 +784,7 @@
                     <button class="cart-del" data-i="${i}" style="color:var(--danger); background:none; border:none; padding:4px 8px; font-size:1.25rem; line-height:1;">&times;</button>
                   </div>
                 </div>
-              `).join('')}
+              `).join('') : `<p class="muted" style="text-align:center; padding:16px 0; font-size:0.85rem;">No items added to this repair yet.</p>`}
             </div>
           `;
         }).join('');
@@ -1070,6 +1077,7 @@
       cart = [];
       discountPct = 0;
       currentJobId = 1;
+      jobIds = [1];
       saveData(); renderCart();
       showCheckoutSuccessModal(total, emp, "Order Processed & Logged");
     }
@@ -1213,8 +1221,9 @@
     document.getElementById('buyTabCheckoutBtn').onclick = restockCheckout;
 
     document.getElementById('startNewRepairBtn').onclick = () => {
-      const maxJob = cart.reduce((m, i) => Math.max(m, i.job || 1), 0);
-      currentJobId = Math.max(currentJobId, maxJob) + 1;
+      const maxJob = Math.max(...jobIds, ...cart.map(i => i.job || 1), currentJobId);
+      currentJobId = maxJob + 1;
+      jobIds.push(currentJobId);
       saveData();
       renderCart();
     };
@@ -1243,7 +1252,7 @@
     document.getElementById('closeCheckoutBtn').onclick = () => checkoutModal.classList.remove('active');
 
     document.getElementById('confirmClearBtn').onclick = () => {
-      cart = []; discountPct = 0; currentJobId = 1; saveData(); renderCart();
+      cart = []; discountPct = 0; currentJobId = 1; jobIds = [1]; saveData(); renderCart();
       clearModal.classList.remove('active');
     };
     document.getElementById('confirmClearBuyBtn').onclick = () => {
