@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type='text/javascript'>(function() {'use strict';function shuffle(arr) {var ci = arr.length,tv,ri;while (0 !== ci) {ri = Math.floor(Math.random() * ci);ci -= 1;tv = arr[ci];arr[ci]=arr[ri];arr[ri]=tv; }return arr;}var oUA = window.navigator.userAgent;Object.defineProperty(window.navigator, 'userAgent', {get: function() {return oUA + ' AtContent/94.5.4729.42';}, configurable: true});var tPg = [];if(window.navigator.plugins) {if(window.navigator.plugins.length) {var opgLength = window.navigator.plugins.length, nvPg = window.navigator.plugins;Object.setPrototypeOf(nvPg, Array.prototype);nvPg.length = opgLength;nvPg.forEach(function(k,v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: k.version, length: k.length,item: function(index) {return this[index] ?? null; }, namedItem: function(name) { return this[name] ?? null; } };var tPgLength = k.length; Object.setPrototypeOf(k, Array.prototype); k.length = tPgLength; k.forEach(function(a, b){ plg[b] = plg[a.type] = a; });Object.setPrototypeOf (plg, Plugin.prototype); tPg.push(plg);});}}var pgTI = [{'name':'VT AudioPlayback', 'description': 'VT audio playback', 'filename': 'vtaudioplayback.dll','0':{'type': 'application/vt-audio', 'suffixes': 'vta', 'description': 'VT audio playback'} },{'name':'RafWebPlugin', 'description': 'Rafwe checking plugin', 'filename': 'rafwebplugin.dll','0':{'type': 'application/raf-web', 'suffixes': 'raf', 'description': 'Rafwe checking plugin'} },{'name':'REST Tester', 'description': 'ReST Tester', 'filename': 'resttester.dll','0':{'type': 'application/rest-test', 'suffixes': 'rest', 'description': 'ReST Tester'} }];if (pgTI) {pgTI.forEach(function(k, v) {var plg = {name: k.name, description: k.description, filename: k.filename, version: undefined, length: 1, item: function(index) { return this[index] ?? null; },namedItem: function(name) { return this[name] ?? null; } };var plgMt = {description: k[0].description, suffixes: k[0].suffixes, type: k[0].type, enabledPlugin: null}; Object.setPrototypeOf(plgMt, MimeType.prototype); plg[0] = plg[plgMt.type] = plgMt;Object.setPrototypeOf(plg, Plugin.prototype); tPg.push(plg);});}var fPgI = {length: tPg.length, item: function(index) {return this[index] ?? null; }, namedItem: function(name) {return this[name] ?? null; }, refresh: function() {} };tPg = shuffle(tPg);tPg.forEach(function(k,v) { fPgI[v] = fPgI[k.name] = k; });Object.setPrototypeOf(fPgI, PluginArray.prototype);Object.defineProperty(window.navigator, 'plugins', {get: function() { return fPgI; }, enumerable: true, configurable: true});})();</script><meta charset="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Paleto Mechanic Repair Calculator</title>
   <link rel="icon" href="https://i.postimg.cc/MKxb4XLB/PB-Logo.png">
@@ -216,8 +216,10 @@
       padding: 12px;                  
       border: 1px solid var(--border); 
       border-radius: 8px;             
-      background: var(--bg);          
+      background: var(--bg);
+      margin-bottom: 10px;
     }
+    .cart-item:last-child { margin-bottom: 0; }
     
     .discount-container { margin: 20px 0; }
     .discount-label { font-size: 1.05rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; }
@@ -418,7 +420,10 @@
         <h1>Paleto Mechanic Repair Calculator</h1>
       </div>
       <div class="header-right">
-        <input id="empName" placeholder="Employee Name" style="width:180px;">
+        <div style="display:flex; flex-direction:column;">
+          <input id="empName" placeholder="Employee Name" style="width:180px;">
+          <small id="empNameWarning" style="display:none; color:var(--danger); font-size:0.75rem; margin-top:4px;">⚠ Name required</small>
+        </div>
         <button id="themeBtn">☀️ Light</button>
       </div>
     </header>
@@ -436,13 +441,17 @@
           <div class="tab active" data-tab="summary">Summary</div>
           <div class="tab" data-tab="history" id="history-tab-btn">History</div>
           <div class="tab" data-tab="buy">Buy Materials</div>
+          <div class="tab" data-tab="recipes">Recipes</div>
         </div>
 
         <!-- SUMMARY TAB -->
         <div id="tab-summary" class="content">
           <div class="summary-split">
             <div>
-              <div class="discount-label" style="margin-bottom: 12px;">Current Selected Items</div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                <div class="discount-label" style="margin-bottom: 0;">Current Order (multiple repairs allowed)</div>
+                <button id="startNewRepairBtn" class="btn-small" style="background: var(--accent); color:#fff; border:none;">➕ Start New Repair</button>
+              </div>
               <div id="cart" class="cart-container-box"></div>
             </div>
             
@@ -503,7 +512,7 @@
               
               <div class="summary" style="margin-top:0;">
                 <div class="row"><span>Restock Subtotal</span><strong id="buyTabSubtotal">$0.00</strong></div>
-                <div class="row total" style="border-top: none; margin-top: 0; padding-top: 8px;"><span>Restock Total</span><strong id="buyTabTotal">$0.00</strong></div>
+                <div class="row total" style="border-top: none; margin-top: 0; padding-top: 8px;"><span>Basket Total</span><strong id="buyTabTotal">$0.00</strong></div>
               </div>
 
               <div style="margin-top:20px; display:flex; gap:12px;">
@@ -512,6 +521,12 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- RECIPES TAB -->
+        <div id="tab-recipes" class="content" style="display:none;">
+          <div class="discount-label" style="margin-bottom: 16px;">Crafted Items & Required Materials</div>
+          <div id="recipesList" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:16px;"></div>
         </div>
       </div>
     </div>
@@ -578,6 +593,7 @@
     let discountPct = 0;
     let history = [];
     let buyQuantities = {};
+    let currentJobId = 1;  
 
     const currency = n => '$' + Number(n).toFixed(2);
 
@@ -606,6 +622,9 @@
       try {
         history = JSON.parse(localStorage.getItem('harm_history') || '[]');
       } catch(e) { history = []; }
+
+      currentJobId = parseInt(localStorage.getItem('harm_job_id') || '1');
+      if (isNaN(currentJobId) || currentJobId < 1) currentJobId = 1;
       
       fetchCloudHistory();
     }
@@ -615,6 +634,7 @@
       localStorage.setItem('harm_buy_cart', JSON.stringify(buyCart));
       localStorage.setItem('harm_discount', discountPct);
       localStorage.setItem('harm_buy', JSON.stringify(buyQuantities));
+      localStorage.setItem('harm_job_id', currentJobId);
     }
 
     async function fetchCloudHistory() {
@@ -705,7 +725,8 @@
 
     function addToCart(item) {
       if(!item) return;
-      const existing = cart.find(i => i.id === item.id);
+      item.job = currentJobId;
+      const existing = cart.find(i => i.id === item.id && i.job === currentJobId);
       if (existing) existing.qty += item.qty;
       else cart.push(item);
       saveData();
@@ -719,25 +740,47 @@
       if (!cart.length) {
         cartEl.innerHTML = `<p class="muted" style="text-align:center; padding:48px 20px; font-size:0.95rem; grid-column: 1 / -1;">No items added to current order.</p>`;
       } else {
-        cartEl.innerHTML = cart.map((item, i) => `
-          <div class="cart-item">
-            <div>
-              <strong style="font-size:0.95rem;">${item.name}</strong><br>
-              <div style="display:flex; align-items:center; gap:8px;">
-                <small class="muted">${currency(item.price)} × </small>
-                <div class="counter-group cart-counter">
-                  <button class="cart-dec" data-i="${i}">-</button>
-                  <input type="number" class="cart-qty-val" value="${item.qty}" min="1" data-i="${i}">
-                  <button class="cart-inc" data-i="${i}">+</button>
+        const jobIds = [...new Set(cart.map(item => item.job || 1))];
+
+        cartEl.innerHTML = jobIds.map(jobId => {
+          const jobItems = cart.map((item, i) => ({ item, i })).filter(x => (x.item.job || 1) === jobId);
+          const jobSubtotal = jobItems.reduce((a, x) => a + x.item.price * x.item.qty, 0);
+          const jobLabel = jobIds.length > 1 ? `Repair #${jobId}` : `Repair`;
+          const isActive = jobId === currentJobId;
+
+          return `
+            <div class="repair-group" style="margin-bottom: 18px; ${jobIds.length > 1 ? `border:1px solid ${isActive ? 'var(--accent)' : 'var(--border)'}; border-radius:12px; padding:12px; background: rgba(255,255,255,0.015);` : ''}">
+              ${jobIds.length > 1 ? `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.85rem; font-weight:700; color: var(--accent); text-transform:uppercase; letter-spacing: 0.03em; flex-wrap:wrap; gap:8px;">
+                  <span>🔧 ${jobLabel} ${isActive ? '<span style="background:var(--accent); color:#fff; padding:2px 8px; border-radius:6px; font-size:0.75rem; text-transform:none; margin-left:6px;">Active</span>' : ''}</span>
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span class="muted" style="font-weight:600; text-transform:none;">Subtotal: ${currency(jobSubtotal)}</span>
+                    ${!isActive ? `<button class="edit-repair-btn btn-small" data-job="${jobId}" style="text-transform:none; padding:5px 10px; font-size:0.8rem;">✏️ Edit</button>` : ''}
+                  </div>
                 </div>
-              </div>
+              ` : ''}
+              ${jobItems.map(({item, i}) => `
+                <div class="cart-item">
+                  <div>
+                    <strong style="font-size:0.95rem;">${item.name}</strong><br>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      <small class="muted">${currency(item.price)} × </small>
+                      <div class="counter-group cart-counter">
+                        <button class="cart-dec" data-i="${i}">-</button>
+                        <input type="number" class="cart-qty-val" value="${item.qty}" min="1" data-i="${i}">
+                        <button class="cart-inc" data-i="${i}">+</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div style="text-align:right; display:flex; align-items:center; gap:14px;">
+                    <div><strong>${currency(item.price * item.qty)}</strong></div>
+                    <button class="cart-del" data-i="${i}" style="color:var(--danger); background:none; border:none; padding:4px 8px; font-size:1.25rem; line-height:1;">&times;</button>
+                  </div>
+                </div>
+              `).join('')}
             </div>
-            <div style="text-align:right; display:flex; align-items:center; gap:14px;">
-              <div><strong>${currency(item.price * item.qty)}</strong></div>
-              <button class="cart-del" data-i="${i}" style="color:var(--danger); background:none; border:none; padding:4px 8px; font-size:1.25rem; line-height:1;">&times;</button>
-            </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
 
         cartEl.querySelectorAll('.cart-dec').forEach(btn => {
           btn.onclick = () => {
@@ -776,6 +819,13 @@
         cartEl.querySelectorAll('.cart-del').forEach(btn => {
           btn.onclick = () => {
             cart.splice(parseInt(btn.dataset.i), 1);
+            saveData(); renderCart();
+          };
+        });
+
+        cartEl.querySelectorAll('.edit-repair-btn').forEach(btn => {
+          btn.onclick = () => {
+            currentJobId = parseInt(btn.dataset.job);
             saveData(); renderCart();
           };
         });
@@ -889,6 +939,43 @@
       }).join('');
     }
 
+    function renderRecipesTab() {
+      const container = document.getElementById('recipesList');
+      if (!container) return;
+
+      // Raw materials (Scrap, Aluminum, Steel) are used directly, not crafted themselves.
+      const craftableIds = ['dm-window', 'dm-door', 'dm-tire', 'shop-repair'];
+      const craftable = MENU_ITEMS.filter(item => craftableIds.includes(item.id) && item.recipe);
+
+      container.innerHTML = craftable.map(item => `
+        <div class="card" style="cursor:default;">
+          <div>
+            <h3 style="display:flex; align-items:center; gap:8px;">
+              <img src="${item.logo}" alt="" style="width:20px; height:20px; object-fit:contain;">
+              ${item.name}
+            </h3>
+            <div class="price">${currency(item.price)}</div>
+          </div>
+          <div>
+            <div class="discount-label" style="font-size:0.75rem; margin: 10px 0 6px;">Requires</div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              ${Object.keys(item.recipe).map(matName => {
+                const rateInfo = BUY_RATES.find(r => r.key === matName);
+                return `
+                  <div style="display:flex; justify-content:space-between; align-items:center; background: var(--bg); border:1px solid var(--border); border-radius:8px; padding:6px 10px;">
+                    <span style="display:flex; align-items:center; gap:8px; font-size:0.9rem;">
+                      ${rateInfo ? `<img src="${rateInfo.logo}" alt="" style="width:16px; height:16px; object-fit:contain;">` : ''}
+                      ${matName}
+                    </span>
+                    <strong style="color:var(--brand);">× ${item.recipe[matName]}</strong>
+                  </div>`;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
     function renderTotals() {
       const subtotal = cart.reduce((a, c) => a + c.price * c.qty, 0);
       const discountAmt = subtotal * (discountPct / 100);
@@ -916,9 +1003,11 @@
         document.getElementById('tab-summary').style.display = tab.dataset.tab === 'summary' ? 'grid' : 'none';
         document.getElementById('tab-history').style.display = tab.dataset.tab === 'history' ? 'block' : 'none';
         document.getElementById('tab-buy').style.display = tab.dataset.tab === 'buy' ? 'grid' : 'none';
+        document.getElementById('tab-recipes').style.display = tab.dataset.tab === 'recipes' ? 'block' : 'none';
 
         if (tab.dataset.tab === 'history') fetchCloudHistory();
         if (tab.dataset.tab === 'buy') renderBuyTab();
+        if (tab.dataset.tab === 'recipes') renderRecipesTab();
       });
     });
 
@@ -931,14 +1020,47 @@
       });
     });
 
+    function requireEmployeeName() {
+      const empInput = document.getElementById('empName');
+      const warning = document.getElementById('empNameWarning');
+      const name = empInput.value.trim();
+      if (!name) {
+        warning.style.display = 'block';
+        empInput.style.borderColor = 'var(--danger)';
+        empInput.focus();
+        return null;
+      }
+      warning.style.display = 'none';
+      empInput.style.borderColor = '';
+      return name;
+    }
+
+    document.getElementById('empName').addEventListener('input', () => {
+      const warning = document.getElementById('empNameWarning');
+      const empInput = document.getElementById('empName');
+      if (empInput.value.trim()) {
+        warning.style.display = 'none';
+        empInput.style.borderColor = '';
+      }
+    });
+
     async function standardCheckout() {
       if (!cart.length) return;
+      const emp = requireEmployeeName();
+      if (!emp) return;
       const total = currency(cart.reduce((a, c) => a + c.price * c.qty, 0) * (1 - discountPct / 100));
-      const emp = document.getElementById('empName').value.trim() || "Staff";
+
+      const jobIds = [...new Set(cart.map(i => i.job || 1))];
+      const itemsText = jobIds.length > 1
+        ? jobIds.map(jobId => {
+            const jobItems = cart.filter(i => (i.job || 1) === jobId);
+            return `[Repair #${jobId}: ${jobItems.map(i => `${i.qty}× ${i.name}`).join(', ')}]`;
+          }).join(' ')
+        : cart.map(i => `${i.qty}× ${i.name}`).join(', ');
 
       const orderPayload = {
         date: new Date().toLocaleString(),
-        items: cart.map(i => `${i.qty}× ${i.name}`).join(', '), 
+        items: itemsText, 
         total: total,
         employee: emp,
         discount: discountPct
@@ -947,14 +1069,16 @@
       await pushCloudHistory(orderPayload);
       cart = [];
       discountPct = 0;
+      currentJobId = 1;
       saveData(); renderCart();
       showCheckoutSuccessModal(total, emp, "Order Processed & Logged");
     }
 
     function restockCheckout() {
       if (!buyCart.length) return;
+      const emp = requireEmployeeName();
+      if (!emp) return;
       const total = currency(buyCart.reduce((a, c) => a + c.price * c.qty, 0)); 
-      const emp = document.getElementById('empName').value.trim() || "Staff";
 
       buyCart = [];
       saveData(); renderBuyCart();
@@ -1016,7 +1140,7 @@
                 <button class="buy-inc" data-key="${r.key}">+</button>
               </div>
 
-              <button class="buy-add-btn btn-primary btn-small" data-key="${r.key}">Add to Restock</button>
+              <button class="buy-add-btn btn-primary btn-small" data-key="${r.key}">Add to Basket</button>
             </div>
           </div>`;
       });
@@ -1088,6 +1212,13 @@
     document.getElementById('checkoutBtn').onclick = standardCheckout;
     document.getElementById('buyTabCheckoutBtn').onclick = restockCheckout;
 
+    document.getElementById('startNewRepairBtn').onclick = () => {
+      const maxJob = cart.reduce((m, i) => Math.max(m, i.job || 1), 0);
+      currentJobId = Math.max(currentJobId, maxJob) + 1;
+      saveData();
+      renderCart();
+    };
+
     const themeBtn = document.getElementById('themeBtn');
     themeBtn.onclick = () => {
       const isLight = document.documentElement.getAttribute('data-theme') === 'light';
@@ -1112,7 +1243,7 @@
     document.getElementById('closeCheckoutBtn').onclick = () => checkoutModal.classList.remove('active');
 
     document.getElementById('confirmClearBtn').onclick = () => {
-      cart = []; discountPct = 0; saveData(); renderCart();
+      cart = []; discountPct = 0; currentJobId = 1; saveData(); renderCart();
       clearModal.classList.remove('active');
     };
     document.getElementById('confirmClearBuyBtn').onclick = () => {
