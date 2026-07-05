@@ -16,4 +16,4 @@ jobs:
           curl -s -o /dev/null -w "Supabase responded with HTTP %{http_code}\n" \
             "https://gpaqlehknskrcthyaapo.supabase.co/rest/v1/Paleto?select=id&limit=1" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
+            -H "Authorization: Bearer ${{ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwYXFsZWhrbnNrcmN0aHlhYXBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NjQwMjEsImV4cCI6MjA5ODI0MDAyMX0.pVsGNoYVNsh6w0RTTCajtveVJ12wgxxgP1Vqhl2EOxQ }}"
