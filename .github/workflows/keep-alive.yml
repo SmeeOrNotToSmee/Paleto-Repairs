@@ -1,19 +1,17 @@
 name: Keep Supabase Project Awake
 
-# Runs once a day (well under Supabase's 7-day inactivity pause threshold),
-# and can also be triggered manually from the Actions tab any time.
 on:
   schedule:
-    - cron: '0 12 * * *'   # every day at 12:00 UTC
+    - cron: '0 12 * * *'
   workflow_dispatch: {}
 
 jobs:
   ping-supabase:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase (lightweight read, counts as real activity)
+      - name: Ping Supabase
         run: |
           curl -s -o /dev/null -w "Supabase responded with HTTP %{http_code}\n" \
             "https://gpaqlehknskrcthyaapo.supabase.co/rest/v1/Paleto?select=id&limit=1" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdwYXFsZWhrbnNrcmN0aHlhYXBvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NjQwMjEsImV4cCI6MjA5ODI0MDAyMX0.pVsGNoYVNsh6w0RTTCajtveVJ12wgxxgP1Vqhl2EOxQ }}"
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
